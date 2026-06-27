@@ -71,7 +71,8 @@ function cleanResponse(text: string): string {
 export async function agentLoop(
   oc: Oc,
   userMessage: string,
-  onStatus?: (status: string) => void
+  onStatus?: (status: string) => void,
+  onToolResult?: (toolName: string, args: Record<string, any>, result: string) => void
 ): Promise<string> {
   const toolPrompt = buildToolPrompt();
 
@@ -108,6 +109,9 @@ export async function agentLoop(
 
       try {
         const result = await tool.execute(call.args);
+
+        // Notify about tool result
+        onToolResult?.(call.name, call.args, result);
 
         // Feed result back as context for next iteration
         // We append the tool result to the instruction

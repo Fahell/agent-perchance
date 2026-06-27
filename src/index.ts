@@ -29,10 +29,9 @@ function validateEnvironment(): boolean {
 // ─── Window Management ──────────────────────────────────────
 function setupWindow() {
   document.body.innerHTML = `
-    <div style="font-family: system-ui; padding: 20px; background: #1a1a2e; color: #eee; height: 100vh; margin: 0;">
-      <h2 style="margin: 0 0 10px 0; color: #00d4ff;">🤖 Agent Panel</h2>
-      <p style="color: #888; font-size: 14px;">Window is active. Agent is running.</p>
-      <div id="agent-output" style="margin-top: 20px;"></div>
+    <div style="font-family: system-ui; padding: 16px; background: #1a1a2e; color: #eee; height: 100vh; margin: 0; display: flex; flex-direction: column;">
+      <h2 style="margin: 0 0 12px 0; color: #00d4ff; font-size: 16px;">🤖 Agent Panel</h2>
+      <div id="agent-output" style="flex: 1; overflow-y: auto; font-size: 13px;"></div>
     </div>
   `;
   oc.window.show();
@@ -55,32 +54,52 @@ function handleCommand(content: string): void {
   }
 }
 
+// ─── Window Helpers ─────────────────────────────────────────
+function appendToOutput(html: string) {
+  const output = document.getElementById("agent-output");
+  if (output) {
+    output.innerHTML += html;
+    output.scrollTop = output.scrollHeight;
+  }
+}
+
 // ─── Agent Message Handler ──────────────────────────────────
 async function handleUserMessage(message: OcMessage): Promise<void> {
   console.log("🤖 [Agent] Processing:", message.content.slice(0, 80));
 
-  // Show status in the window
-  const output = document.getElementById("agent-output");
-  if (output) {
-    output.innerHTML += `<div style="margin: 5px 0; color: #00d4ff;">🔍 ${message.content.slice(0, 60)}...</div>`;
-  }
+  appendToOutput(`<div style="margin: 8px 0; padding: 8px; background: #16213e; border-radius: 6px; border-left: 3px solid #00d4ff;">
+    <div style="color: #00d4ff; font-weight: bold;">📨 ${message.content.slice(0, 80)}</div>
+  </div>`);
 
-  // Run the agent loop (handles tool calls)
-  const response = await agentLoop(oc, message.content, (status) => {
-    console.log("🤖 [Agent]", status);
-  });
+  // Run the agent loop
+  const response = await agentLoop(
+    oc,
+    message.content,
+    (status) => {
+      console.log("🤖 [Agent]", status);
+    },
+    (toolName, args, result) => {
+      // Show tool results in the window
+      const query = args.query || args.url || "";
+      const preview = result.slice(0, 300).replace(/\n/g, " ");
+      appendToOutput(`<div style="margin: 4px 0 4px 12px; padding: 6px; background: #0f3460; border-radius: 4px; border-left: 2px solid #4ade80;">
+        <div style="color: #4ade80; font-size: 12px;">🔧 ${toolName}: ${query}</div>
+        <div style="color: #aaa; font-size: 11px; margin-top: 4px;">${preview}...</div>
+      </div>`);
+    }
+  );
 
   console.log("🤖 [Agent] Response:", response.slice(0, 100));
 
-  // Push the AI response to the chat
+  // Push ONLY the final AI response to the chat (no tool calls, no search results)
   oc.thread.messages.push({
     author: "ai",
     content: response,
   });
 
-  if (output) {
-    output.innerHTML += `<div style="margin: 5px 0; color: #4ade80;">✅ Done (${response.length} chars)</div>`;
-  }
+  appendToOutput(`<div style="margin: 4px 0 8px 12px; padding: 6px; background: #1a1a2e; border-radius: 4px; border-left: 2px solid #00d4ff;">
+    <div style="color: #00d4ff; font-size: 12px;">✅ Response sent to chat (${response.length} chars)</div>
+  </div>`);
 }
 
 // ─── Bootstrap ──────────────────────────────────────────────
