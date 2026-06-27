@@ -126,12 +126,15 @@ function bootstrap() {
   setupWindow();
 
   // CRITICAL: Pipeline runs BEFORE AI sees the message
-  // This prevents the default AI from responding to ANY user message
+  // Block ALL readers (ai, ai-character-chat, etc.) — only our agent handles user messages
   oc.messageRenderingPipeline.push(({ message, reader }: { message: OcMessage; reader: string }) => {
-    if (reader === "ai" && message.author === "user") {
+    if (message.author === "user") {
       message.expectsReply = false;
-      message.hiddenFrom = ["ai"];
-      console.log("🛡️ [Agent] Pipeline: blocked AI from seeing user message");
+      if (!message.hiddenFrom) message.hiddenFrom = [];
+      if (!message.hiddenFrom.includes(reader)) {
+        message.hiddenFrom.push(reader);
+      }
+      console.log(`🛡️ [Agent] Pipeline: blocked '${reader}'`);
     }
   });
 
