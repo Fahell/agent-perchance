@@ -6,6 +6,7 @@
 import type { Oc, OcMessage } from "./types.js";
 import { agentLoop } from "./agent-loop.js";
 import { setApiKey, getApiKey, validateApiKey } from "./tools/web-search.js";
+import { storageGet, storageSet } from "./storage.js";
 
 // ─── Build Constants (injected by esbuild) ──────────────────
 declare const __VERSION__: string;
@@ -16,7 +17,6 @@ declare const __BUILD_TIME__: string;
 const oc: Oc = window.oc;
 let agentProcessing = false;
 const MAX_HISTORY_MESSAGES = 10;
-const STORAGE_KEY = "agent_jina_key";
 
 // ─── Version Banner ─────────────────────────────────────────
 function printBanner() {
@@ -25,21 +25,17 @@ function printBanner() {
   console.log("   https://github.com/Fahell/agent-perchance");
 }
 
-// ─── API Key Storage ────────────────────────────────────────
-function loadApiKey(): string | null {
+// ─── API Key Storage (IndexedDB) ─────────────────────────────
+async function loadApiKey(): Promise<string | null> {
   try {
-    return localStorage.getItem(STORAGE_KEY);
+    return (await storageGet<string>("jina_key")) ?? null;
   } catch {
     return null;
   }
 }
 
-function saveApiKey(key: string): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, key);
-  } catch (e) {
-    console.warn("[Agent] Could not save API key to localStorage:", e);
-  }
+async function saveApiKey(key: string): Promise<void> {
+  await storageSet("jina_key", key);
 }
 
 // ─── Environment Validation ──────────────────────────────────
@@ -123,11 +119,11 @@ function renderSetupScreen(): void {
 
     const valid = await validateApiKey(key);
     if (valid) {
-      saveApiKey(key);
+      await saveApiKey(key);
       setApiKey(key);
       successDiv.textContent = "✅ Chave válida! Iniciando...";
       successDiv.style.display = "block";
-      console.log("🔑 [Agent] API key saved");
+      console.log("🔑 [Agent] API key saved to IndexedDB");
       setTimeout(() => startAgent(), 800);
     } else {
       errorDiv.textContent = "❌ Chave inválida. Verifique e tente novamente.";
@@ -212,7 +208,7 @@ function openSettings() {
     msg.style.display = "block";
     const valid = await validateApiKey(newKey);
     if (valid) {
-      saveApiKey(newKey);
+      await saveApiKey(newKey);
       setApiKey(newKey);
       msg.textContent = "✅ Chave salva!";
       msg.style.color = "#4ade80";
@@ -353,15 +349,15 @@ function startAgent() {
 }
 
 // ─── Bootstrap ──────────────────────────────────────────────
-function bootstrap() {
+async function bootstrap() {
   printBanner();
   console.log("🚀 [Agent] Loading...");
 
-  // Load saved API key
-  const savedKey = loadApiKey();
+  // Load saved API key from IndexedDB
+  const savedKey = await loadApiKey();
   if (savedKey) {
     setApiKey(savedKey);
-    console.log("🔑 [Agent] API key loaded from storage");
+    console.log("🔑 [Agent] API key loaded from IndexedDB");
     startAgent();
   } else {
     console.log("🔑 [Agent] No API key found — showing setup screen");
