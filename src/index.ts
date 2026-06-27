@@ -143,6 +143,16 @@ function bootstrap() {
   });
 
   oc.thread.on("MessageAdded", function({ message }: { message: OcMessage }) {
+    // STRATEGY 1: Suppress internal generator by setting flags directly on the message object
+    // The pipeline can't prevent generation, but maybe the generator checks these properties
+    // when it reads the message (which happens AFTER our handler runs)
+    if (message.author === "user") {
+      message.expectsReply = false;
+      if (!message.hiddenFrom) message.hiddenFrom = [];
+      if (!message.hiddenFrom.includes("ai")) message.hiddenFrom.push("ai");
+      console.log("🛡️ [Agent] Set expectsReply=false, hiddenFrom=[ai] on user message");
+    }
+
     // Remove messages from Perchance's internal generator while our agent is running
     if (message.author === "ai" && agentProcessing) {
       const idx = oc.thread.messages.indexOf(message);
