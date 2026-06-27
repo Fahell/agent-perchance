@@ -298,24 +298,13 @@ async function handleUserMessage(message: OcMessage): Promise<void> {
   </div>`);
 }
 
-// ─── Start Agent (registers pipeline + handlers) ─────────────
+// ─── Start Agent (registers handlers) ────────────────────────
 function startAgent() {
   setupWindow();
 
-  // CRITICAL: Pipeline runs BEFORE AI sees the message
-  oc.messageRenderingPipeline.push(({ message, reader }: { message: OcMessage; reader: string }) => {
-    if (message.author === "user") {
-      message.expectsReply = false;
-      if (!message.hiddenFrom) message.hiddenFrom = [];
-      if (!message.hiddenFrom.includes(reader)) {
-        message.hiddenFrom.push(reader);
-      }
-      console.log(`🛡️ [Agent] Pipeline: blocked '${reader}'`);
-    }
-  });
-
   oc.thread.on("MessageAdded", function({ message }: { message: OcMessage }) {
-    // STRATEGY 1: Suppress internal generator by setting flags directly on the message object
+    // Suppress internal generator by setting flags directly on the message object.
+    // hiddenFrom: ["ai"] hides from AI only — user still sees the message in chat.
     if (message.author === "user") {
       message.expectsReply = false;
       if (!message.hiddenFrom) message.hiddenFrom = [];
