@@ -6,8 +6,25 @@
 import type { Oc, OcMessage } from "./types.js";
 import { agentLoop } from "./agent-loop.js";
 
+// ─── Build Constants (injected by esbuild) ──────────────────
+declare const __VERSION__: string;
+declare const __COMMIT__: string;
+declare const __BUILD_TIME__: string;
+
 // ─── Globals ────────────────────────────────────────────────
 const oc: Oc = window.oc;
+
+// ─── Version Banner ─────────────────────────────────────────
+function printBanner() {
+  console.log(
+    "%c🤖 Agent %cv" + __VERSION__ + "+" + __COMMIT__ + "%c\n" +
+    "   Build: " + __BUILD_TIME__ + "\n" +
+    "   https://github.com/Fahell/agent-perchance",
+    "color: #00d4ff; font-weight: bold; font-size: 14px;",
+    "color: #4ade80; font-weight: bold; font-size: 14px;",
+    "color: #888; font-size: 11px;"
+  );
+}
 
 // ─── Validation ─────────────────────────────────────────────
 function validateEnvironment(): boolean {
@@ -104,6 +121,7 @@ async function handleUserMessage(message: OcMessage): Promise<void> {
 
 // ─── Bootstrap ──────────────────────────────────────────────
 function bootstrap() {
+  printBanner();
   console.log("🚀 [Agent] Loading...");
 
   // Setup window (iframe content)

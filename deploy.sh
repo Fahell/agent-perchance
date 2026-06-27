@@ -1,12 +1,20 @@
 #!/bin/bash
 set -e
 
+# Capture commit hash BEFORE build
+COMMIT=$(git rev-parse --short HEAD)
+VERSION=$(node -e "console.log(require('./package.json').version)")
+BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+echo "📦 Version: ${VERSION}+${COMMIT}"
+echo "🕐 Build: ${BUILD_TIME}"
+
 echo "🔨 Building..."
-pnpm build
+COMMIT=$COMMIT pnpm build
 
 echo "📦 Committing..."
 git add -A
-git commit -m "deploy: $(date +%Y-%m-%d\ %H:%M)" || echo "Nothing to commit"
+git commit -m "deploy: v${VERSION}+${COMMIT}" || echo "Nothing to commit"
 
 echo "🚀 Pushing..."
 git push
@@ -15,4 +23,8 @@ git push
 echo "🧹 Purging jsDelivr cache..."
 curl -s "https://purge.jsdelivr.net/gh/Fahell/agent-perchance@main/dist/agent.js" > /dev/null
 
-echo "✅ Done! Use: https://cdn.jsdelivr.net/gh/Fahell/agent-perchance@main/dist/agent.js"
+echo ""
+echo "✅ Deployed!"
+echo "   Version: ${VERSION}+${COMMIT}"
+echo "   URL: https://cdn.jsdelivr.net/gh/Fahell/agent-perchance@main/dist/agent.js"
+echo "   Cache-busted: ?v=${COMMIT}"
