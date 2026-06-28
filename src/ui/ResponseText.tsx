@@ -23,7 +23,7 @@ export function ResponseText({ content, loading }: ResponseTextProps) {
         animation: "agent-slide-in 0.2s ease-out",
       }}>
         <div style={{ color: colors.textMuted, fontSize: "9px", fontWeight: "600", marginBottom: "6px", fontFamily: fonts.mono, letterSpacing: "1px", textTransform: "uppercase" }}>
-          response
+          agent
         </div>
         <div className="skeleton-line" style={{ width: "85%" }} />
         <div className="skeleton-line" style={{ width: "60%" }} />
@@ -48,7 +48,7 @@ export function ResponseText({ content, loading }: ResponseTextProps) {
       animation: "fade-in 0.3s ease-out",
     }}>
       <div style={{ color: colors.textMuted, fontSize: "9px", fontWeight: "600", marginBottom: "4px", fontFamily: fonts.mono, letterSpacing: "1px", textTransform: "uppercase" }}>
-        response
+        agent
       </div>
       <div style={{
         maxHeight: !expanded && isLong ? `${TRUNCATE_HEIGHT}px` : undefined,

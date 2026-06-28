@@ -3,9 +3,10 @@ import { colors, fonts } from "./theme.js";
 
 interface UserMessageProps {
   content: string;
+  userName?: string;
 }
 
-export function UserMessage({ content }: UserMessageProps) {
+export function UserMessage({ content, userName }: UserMessageProps) {
   return (
     <div style={{
       display: "flex",
@@ -24,7 +25,7 @@ export function UserMessage({ content }: UserMessageProps) {
         wordBreak: "break-word",
       }}>
         <div style={{ color: colors.textMuted, fontSize: "9px", fontWeight: "600", marginBottom: "4px", fontFamily: fonts.mono, letterSpacing: "1px", textTransform: "uppercase" }}>
-          you
+          {userName || "you"}
         </div>
         <div>{content}</div>
       </div>

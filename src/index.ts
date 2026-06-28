@@ -213,6 +213,7 @@ function startAgent() {
     commit: __COMMIT__,
     currentApiKey: getApiKey(),
     panelMode: loadPanelMode(),
+    userName: (oc.thread.userCharacter as any)?.name || "",
     onSettingsSave: async (key: string) => {
       const valid = await validateApiKey(key);
       if (valid) {

@@ -21,6 +21,7 @@ export interface AgentPanelProps {
   commit: string;
   currentApiKey: string;
   panelMode: PanelMode;
+  userName?: string;
   onSettingsSave: (key: string) => Promise<boolean>;
   onPanelModeChange: (mode: PanelMode) => void;
   inputEnabled: boolean;
@@ -36,7 +37,7 @@ export interface AgentPanelRef {
   setResponse(response: string): void;
 }
 
-export function AgentPanel({ version, commit, currentApiKey, panelMode: initialPanelMode, onSettingsSave, onPanelModeChange, inputEnabled: initialInputEnabled, onInputEnabledChange, onSendMessage }: AgentPanelProps) {
+export function AgentPanel({ version, commit, currentApiKey, panelMode: initialPanelMode, userName, onSettingsSave, onPanelModeChange, inputEnabled: initialInputEnabled, onInputEnabledChange, onSendMessage }: AgentPanelProps) {
   const [messages, setMessages] = useState<PanelMessage[]>([]);
   const [agentStatus, setAgentStatus] = useState<AgentStatus>("idle");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -204,7 +205,7 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
               elements.push(<div key={`sep-${i}`} className="msg-turn-separator" />);
             }
             if (msg.role === "user") {
-              elements.push(<UserMessage key={msg.id} content={msg.content} />);
+              elements.push(<UserMessage key={msg.id} content={msg.content} userName={userName} />);
             } else {
               elements.push(
                 <AgentMessage
