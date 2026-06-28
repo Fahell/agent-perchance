@@ -150,6 +150,12 @@ async function handleUserMessage(message: OcMessage): Promise<void> {
 
 // ─── Process User Message (single source of truth) ───────────
 async function processUserMessage(message: OcMessage): Promise<void> {
+  // Prevent concurrent processing (e.g. panel push + Perchance chat simultaneously)
+  if (agentProcessing) {
+    console.log("⏳ [Agent] Already processing, skipping:", message.content.slice(0, 40));
+    return;
+  }
+
   // Suppress internal generator by setting flags directly on the message object.
   message.expectsReply = false;
   if (!message.hiddenFrom) message.hiddenFrom = [];
