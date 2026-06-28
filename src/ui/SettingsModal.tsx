@@ -1,6 +1,7 @@
 import { h } from "preact";
 import { useState } from "preact/hooks";
 import { colors, fonts } from "./theme.js";
+import { t, LOCALES, LOCALE_LABELS, type Locale } from "../i18n/index.js";
 
 import type { PanelMode } from "./types.js";
 
@@ -9,13 +10,15 @@ interface SettingsModalProps {
   currentKey: string;
   panelMode: PanelMode;
   inputEnabled: boolean;
+  locale: Locale;
   onClose: () => void;
   onSave: (key: string) => Promise<boolean>;
   onPanelModeChange: (mode: PanelMode) => void;
   onInputEnabledChange: (enabled: boolean) => void;
+  onLocaleChange: (locale: Locale) => void;
 }
 
-export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, onClose, onSave, onPanelModeChange, onInputEnabledChange }: SettingsModalProps) {
+export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, locale, onClose, onSave, onPanelModeChange, onInputEnabledChange, onLocaleChange }: SettingsModalProps) {
   const [key, setKey] = useState(currentKey);
   const [msg, setMsg] = useState("");
 
@@ -23,12 +26,12 @@ export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, onC
 
   async function handleSave() {
     if (!key.trim()) {
-      setMsg("[!!] insert a key");
+      setMsg(t("settings.apiKey.error.empty", locale));
       return;
     }
-    setMsg("[...] validating");
+    setMsg(t("settings.apiKey.validating", locale));
     const ok = await onSave(key.trim());
-    setMsg(ok ? "[ok] saved" : "[!!] invalid key");
+    setMsg(ok ? t("settings.apiKey.saved", locale) : t("settings.apiKey.error.invalid", locale));
     if (ok) setTimeout(onClose, 800);
   }
 
@@ -65,15 +68,42 @@ export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, onC
         }}
       >
         <h3 style={{ margin: "0 0 16px", color: colors.textSecondary, fontSize: "11px", fontFamily: fonts.mono, letterSpacing: "1px", textTransform: "uppercase" }}>
-          settings
+          {t("settings.title", locale)}
         </h3>
+
+        {/* Language selector */}
+        <div style={{ marginBottom: "14px", padding: "10px 12px", background: colors.surface1, border: `1px solid ${colors.border}` }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ color: colors.textSecondary, fontSize: "11px", fontFamily: fonts.mono }}>
+              {t("settings.language", locale)}
+            </div>
+            <select
+              value={locale}
+              onChange={(e) => onLocaleChange((e.target as HTMLSelectElement).value as Locale)}
+              style={{
+                fontFamily: fonts.mono,
+                fontSize: "10px",
+                background: colors.surface2,
+                color: colors.text,
+                border: `1px solid ${colors.border}`,
+                padding: "3px 6px",
+                outline: "none",
+                cursor: "pointer",
+              }}
+            >
+              {LOCALES.map((l) => (
+                <option key={l} value={l}>{LOCALE_LABELS[l]}</option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         {/* Panel mode toggle */}
         <div style={{ marginBottom: "14px", padding: "10px 12px", background: colors.surface1, border: `1px solid ${colors.border}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div>
-              <div style={{ color: colors.textSecondary, fontSize: "11px", fontFamily: fonts.mono }}>compact mode</div>
-              <div style={{ color: colors.textMuted, fontSize: "9px", marginTop: "2px", fontFamily: fonts.mono }}>tool calls + status only</div>
+              <div style={{ color: colors.textSecondary, fontSize: "11px", fontFamily: fonts.mono }}>{t("settings.compactMode", locale)}</div>
+              <div style={{ color: colors.textMuted, fontSize: "9px", marginTop: "2px", fontFamily: fonts.mono }}>{t("settings.compactMode.desc", locale)}</div>
             </div>
             <div
               onClick={() => onPanelModeChange(isCompact ? "full" : "tools-only")}
@@ -88,7 +118,7 @@ export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, onC
                 transition: "all 0.15s",
               }}
             >
-              {isCompact ? "on" : "off"}
+              {isCompact ? t("settings.toggle.on", locale) : t("settings.toggle.off", locale)}
             </div>
           </div>
         </div>
@@ -97,8 +127,8 @@ export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, onC
         <div style={{ marginBottom: "14px", padding: "10px 12px", background: colors.surface1, border: `1px solid ${colors.border}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div>
-              <div style={{ color: colors.textSecondary, fontSize: "11px", fontFamily: fonts.mono }}>panel input</div>
-              <div style={{ color: colors.textMuted, fontSize: "9px", marginTop: "2px", fontFamily: fonts.mono }}>type messages in the panel</div>
+              <div style={{ color: colors.textSecondary, fontSize: "11px", fontFamily: fonts.mono }}>{t("settings.panelInput", locale)}</div>
+              <div style={{ color: colors.textMuted, fontSize: "9px", marginTop: "2px", fontFamily: fonts.mono }}>{t("settings.panelInput.desc", locale)}</div>
             </div>
             <div
               onClick={() => onInputEnabledChange(!inputEnabled)}
@@ -113,20 +143,20 @@ export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, onC
                 transition: "all 0.15s",
               }}
             >
-              {inputEnabled ? "on" : "off"}
+              {inputEnabled ? t("settings.toggle.on", locale) : t("settings.toggle.off", locale)}
             </div>
           </div>
         </div>
 
         <div style={{ marginBottom: "14px" }}>
           <label style={{ color: colors.textMuted, fontSize: "9px", display: "block", marginBottom: "4px", fontFamily: fonts.mono, letterSpacing: "1px", textTransform: "uppercase" }}>
-            jina api key
+            {t("settings.apiKey", locale)}
           </label>
           <input
             type="password"
             value={key}
             onInput={(e) => setKey((e.target as HTMLInputElement).value)}
-            placeholder="jina_xxx..."
+            placeholder={t("settings.apiKey.placeholder", locale)}
             style={{
               width: "100%",
               padding: "8px 10px",
@@ -140,7 +170,7 @@ export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, onC
             }}
           />
           <div style={{ color: colors.textMuted, fontSize: "9px", marginTop: "4px", fontFamily: fonts.mono }}>
-            current: {maskedKey}
+            {t("settings.apiKey.current", locale).replace("{key}", maskedKey)}
           </div>
         </div>
 
@@ -170,7 +200,7 @@ export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, onC
               letterSpacing: "0.5px",
             }}
           >
-            save
+            {t("settings.save", locale)}
           </button>
           <button
             onClick={onClose}
@@ -186,7 +216,7 @@ export function SettingsModal({ isOpen, currentKey, panelMode, inputEnabled, onC
               letterSpacing: "0.5px",
             }}
           >
-            close
+            {t("settings.close", locale)}
           </button>
         </div>
       </div>

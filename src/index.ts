@@ -8,6 +8,7 @@ import { agentLoop } from "./agent-loop.js";
 import { setApiKey, getApiKey, validateApiKey } from "./tools/web-search.js";
 import { storageGet, storageSet, initStorage } from "./storage.js";
 import { renderPanel, renderSetup, type AgentPanelRef } from "./ui/index.js";
+import { getLocale, setLocale as setI18nLocale, type Locale } from "./i18n/index.js";
 
 // ─── Build Constants (injected by esbuild) ──────────────────
 declare const __VERSION__: string;
@@ -57,6 +58,10 @@ function loadInputEnabled(): boolean {
 
 function saveInputEnabled(enabled: boolean): void {
   storageSet(INPUT_ENABLED_STORAGE, String(enabled));
+}
+
+function loadLocale(): Locale {
+  return getLocale();
 }
 
 // ─── Environment Validation ──────────────────────────────────
@@ -213,6 +218,7 @@ function startAgent() {
     commit: __COMMIT__,
     currentApiKey: getApiKey(),
     panelMode: loadPanelMode(),
+    locale: loadLocale(),
     userName: (oc.thread.userCharacter as any)?.name || "",
     onSettingsSave: async (key: string) => {
       const valid = await validateApiKey(key);
@@ -231,6 +237,10 @@ function startAgent() {
     onInputEnabledChange: (enabled) => {
       saveInputEnabled(enabled);
       console.log("📊 [Agent] Panel input:", enabled ? "enabled" : "disabled");
+    },
+    onLocaleChange: (locale) => {
+      setI18nLocale(locale);
+      console.log("🌐 [Agent] Locale:", locale);
     },
     onSendMessage: (text: string) => {
       if (agentProcessing) {
@@ -295,6 +305,7 @@ function bootstrap() {
     console.log("🔑 [Agent] No API key found — showing setup screen");
     renderSetup(document.body, {
       version: __VERSION__ + "+" + __COMMIT__,
+      locale: loadLocale(),
       onSetupComplete: startAgent,
       validateApiKey,
       saveApiKey: (key: string) => {

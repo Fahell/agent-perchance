@@ -1,6 +1,7 @@
 import { h } from "preact";
 import { useState, useCallback, useRef } from "preact/hooks";
 import { colors, fonts } from "./theme.js";
+import { t, type Locale } from "../i18n/index.js";
 import { Header } from "./Header.js";
 import { MessageList } from "./MessageList.js";
 import { UserMessage } from "./UserMessage.js";
@@ -22,10 +23,12 @@ export interface AgentPanelProps {
   currentApiKey: string;
   panelMode: PanelMode;
   userName?: string;
+  locale?: Locale;
   onSettingsSave: (key: string) => Promise<boolean>;
   onPanelModeChange: (mode: PanelMode) => void;
   inputEnabled: boolean;
   onInputEnabledChange: (enabled: boolean) => void;
+  onLocaleChange: (locale: Locale) => void;
   onSendMessage: (text: string) => void;
 }
 
@@ -37,13 +40,14 @@ export interface AgentPanelRef {
   setResponse(response: string): void;
 }
 
-export function AgentPanel({ version, commit, currentApiKey, panelMode: initialPanelMode, userName, onSettingsSave, onPanelModeChange, inputEnabled: initialInputEnabled, onInputEnabledChange, onSendMessage }: AgentPanelProps) {
+export function AgentPanel({ version, commit, currentApiKey, panelMode: initialPanelMode, userName, locale: initialLocale, onSettingsSave, onPanelModeChange, inputEnabled: initialInputEnabled, onInputEnabledChange, onLocaleChange, onSendMessage }: AgentPanelProps) {
   const [messages, setMessages] = useState<PanelMessage[]>([]);
   const [agentStatus, setAgentStatus] = useState<AgentStatus>("idle");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [apiKey, setApiKey] = useState(currentApiKey);
   const [panelMode, setPanelMode] = useState<PanelMode>(initialPanelMode);
   const [inputEnabled, setInputEnabled] = useState(initialInputEnabled);
+  const [locale, setLocale] = useState<Locale>(initialLocale || "en");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handlePanelModeChange = (mode: PanelMode) => {
@@ -54,6 +58,11 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
   const handleInputEnabledChange = (enabled: boolean) => {
     setInputEnabled(enabled);
     onInputEnabledChange(enabled);
+  };
+
+  const handleLocaleChange = (l: Locale) => {
+    setLocale(l);
+    onLocaleChange(l);
   };
 
   // ── Exposed actions (used via ref from index.ts) ────────
@@ -168,10 +177,10 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
           }}>
             <div style={{ fontSize: "12px", marginBottom: "6px" }}>
               {panelMode === "tools-only" ? (
-                <span>compact — tool calls only</span>
+                <span>{t("panel.compact", locale)}</span>
               ) : (
                 <span>
-                  ready<span style={{ animation: "cursor-blink 1s step-end infinite" }}>|</span>
+                  {t("panel.ready", locale)}<span style={{ animation: "cursor-blink 1s step-end infinite" }}>|</span>
                 </span>
               )}
             </div>
@@ -193,7 +202,7 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
           if (isCompact && messages.length > 0 && filtered.length === 0 && agentStatus === "idle") {
             return (
               <div style={{ padding: "12px", textAlign: "center", color: colors.textMuted, fontSize: "10px", fontFamily: fonts.mono }}>
-                compact — tool calls only
+                {t("panel.compact", locale)}
               </div>
             );
           }
@@ -205,7 +214,7 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
               elements.push(<div key={`sep-${i}`} className="msg-turn-separator" />);
             }
             if (msg.role === "user") {
-              elements.push(<UserMessage key={msg.id} content={msg.content} userName={userName} />);
+              elements.push(<UserMessage key={msg.id} content={msg.content} userName={userName} locale={locale} />);
             } else {
               elements.push(
                 <AgentMessage
@@ -213,6 +222,7 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
                   message={msg}
                   agentStatus={agentStatus}
                   compact={isCompact}
+                  locale={locale}
                 />
               );
             }
@@ -241,6 +251,7 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
         inputEnabled={inputEnabled}
         onSend={onSendMessage}
         disabled={agentStatus !== "idle"}
+        locale={locale}
       />
 
       <SettingsModal
@@ -256,6 +267,8 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
         }}
         onPanelModeChange={handlePanelModeChange}
         onInputEnabledChange={handleInputEnabledChange}
+        locale={locale}
+        onLocaleChange={handleLocaleChange}
       />
     </div>
   );

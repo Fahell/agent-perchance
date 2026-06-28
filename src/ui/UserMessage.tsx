@@ -1,12 +1,14 @@
 import { h } from "preact";
 import { colors, fonts } from "./theme.js";
+import { t, type Locale } from "../i18n/index.js";
 
 interface UserMessageProps {
   content: string;
   userName?: string;
+  locale?: Locale;
 }
 
-export function UserMessage({ content, userName }: UserMessageProps) {
+export function UserMessage({ content, userName, locale }: UserMessageProps) {
   return (
     <div style={{
       display: "flex",
@@ -25,7 +27,7 @@ export function UserMessage({ content, userName }: UserMessageProps) {
         wordBreak: "break-word",
       }}>
         <div style={{ color: colors.textMuted, fontSize: "9px", fontWeight: "600", marginBottom: "4px", fontFamily: fonts.mono, letterSpacing: "1px", textTransform: "uppercase" }}>
-          {userName || "you"}
+          {userName || t("user.you", locale)}
         </div>
         <div>{content}</div>
       </div>

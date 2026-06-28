@@ -1,15 +1,18 @@
 import { h } from "preact";
 import { useState } from "preact/hooks";
 import { colors, fonts } from "./theme.js";
+import { t, type Locale } from "../i18n/index.js";
 
 interface FooterProps {
   onSettings: () => void;
   inputEnabled: boolean;
   onSend: (text: string) => void;
   disabled: boolean;
+  locale?: Locale;
 }
 
-export function Footer({ onSettings, inputEnabled, onSend, disabled }: FooterProps) {
+export function Footer({ onSettings, inputEnabled, onSend, disabled, locale }: FooterProps) {
+  const placeholder = t("footer.waiting", locale);
   const [text, setText] = useState("");
 
   function handleSend() {
@@ -40,7 +43,7 @@ export function Footer({ onSettings, inputEnabled, onSend, disabled }: FooterPro
             value={text}
             onInput={(e) => setText((e.target as HTMLInputElement).value)}
             onKeyDown={handleKeyDown}
-            placeholder={disabled ? "waiting..." : "> _"}
+            placeholder={disabled ? placeholder : "> _"}
             disabled={disabled}
             style={{
               flex: "1",

@@ -1,22 +1,24 @@
 import { h } from "preact";
 import { useState } from "preact/hooks";
 import { colors, fonts } from "./theme.js";
+import { t, type Locale } from "../i18n/index.js";
 
 interface SetupScreenProps {
   version: string;
+  locale?: Locale;
   onSetupComplete: () => void;
   validateApiKey: (key: string) => Promise<boolean>;
   saveApiKey: (key: string) => void;
 }
 
-export function SetupScreen({ version, onSetupComplete, validateApiKey, saveApiKey }: SetupScreenProps) {
+export function SetupScreen({ version, locale, onSetupComplete, validateApiKey, saveApiKey }: SetupScreenProps) {
   const [key, setKey] = useState("");
   const [status, setStatus] = useState<"idle" | "validating" | "error" | "success">("idle");
   const [error, setError] = useState("");
 
   async function handleSave() {
     if (!key.trim()) {
-      setError("insert a key");
+      setError(t("setup.error.empty", locale));
       setStatus("error");
       return;
     }
@@ -27,7 +29,7 @@ export function SetupScreen({ version, onSetupComplete, validateApiKey, saveApiK
       setStatus("success");
       setTimeout(() => onSetupComplete(), 800);
     } else {
-      setError("invalid key. check and try again.");
+      setError(t("setup.error.invalid", locale));
       setStatus("error");
     }
   }
@@ -59,17 +61,16 @@ export function SetupScreen({ version, onSetupComplete, validateApiKey, saveApiK
           border: `1px solid ${colors.border}`,
         }}>
           <h3 style={{ margin: "0 0 12px", color: colors.textSecondary, fontSize: "11px", fontFamily: fonts.mono, letterSpacing: "1px", textTransform: "uppercase" }}>
-            [ setup ] jina api key
+            [ setup ] {t("setup.title", locale)}
           </h3>
           <p style={{ color: colors.textSecondary, fontSize: "11px", margin: "0 0 12px", lineHeight: "1.6", fontFamily: fonts.mono }}>
-            web search requires a{" "}
-            <strong style={{ color: colors.text }}>free</strong> Jina AI API key.
+            {t("setup.desc", locale)}
           </p>
           <ol style={{ color: colors.textSecondary, fontSize: "11px", margin: "0 0 16px", paddingLeft: "16px", lineHeight: "2", fontFamily: fonts.mono }}>
-            <li>go to <a href="https://jina.ai/?sui=apikey" target="_blank" style={{ color: colors.text, textDecoration: "underline" }}>jina.ai/?sui=apikey</a></li>
-            <li>create free account (or login)</li>
-            <li>copy your api key</li>
-            <li>paste below</li>
+            <li>{t("setup.step1", locale)} <a href="https://jina.ai/?sui=apikey" target="_blank" style={{ color: colors.text, textDecoration: "underline" }}>jina.ai/?sui=apikey</a></li>
+            <li>{t("setup.step2", locale)}</li>
+            <li>{t("setup.step3", locale)}</li>
+            <li>{t("setup.step4", locale)}</li>
           </ol>
 
           <input
@@ -99,7 +100,7 @@ export function SetupScreen({ version, onSetupComplete, validateApiKey, saveApiK
           )}
           {status === "success" && (
             <div style={{ color: colors.textSecondary, fontSize: "10px", marginBottom: "8px", fontFamily: fonts.mono }}>
-              [ok] valid key. starting...
+              [ok] {t("setup.success", locale)}
             </div>
           )}
 
@@ -118,7 +119,7 @@ export function SetupScreen({ version, onSetupComplete, validateApiKey, saveApiK
               letterSpacing: "0.5px",
             }}
           >
-            {status === "validating" ? "[...] validating" : "save + start"}
+            {status === "validating" ? `[...] ${t("setup.validating", locale)}` : t("setup.save", locale)}
           </button>
           <button
             onClick={onSetupComplete}
@@ -135,12 +136,12 @@ export function SetupScreen({ version, onSetupComplete, validateApiKey, saveApiK
               letterSpacing: "0.5px",
             }}
           >
-            skip (no web search)
+            {t("setup.skip", locale)}
           </button>
         </div>
 
         <p style={{ color: colors.textMuted, fontSize: "9px", textAlign: "center", marginTop: "14px", fontFamily: fonts.mono }}>
-          your key is stored locally and never shared.
+          {t("setup.note", locale)}
         </p>
       </div>
     </div>

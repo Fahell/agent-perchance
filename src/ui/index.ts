@@ -36,6 +36,7 @@ export function renderPanel(container: HTMLElement, props: AgentPanelProps): Age
 
 export function renderSetup(container: HTMLElement, props: {
   version: string;
+  locale?: string;
   onSetupComplete: () => void;
   validateApiKey: (key: string) => Promise<boolean>;
   saveApiKey: (key: string) => void;

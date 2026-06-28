@@ -2,15 +2,17 @@ import { h } from "preact";
 import { useState } from "preact/hooks";
 import { colors, fonts } from "./theme.js";
 import { renderMarkdown } from "./markdown.js";
+import { t, type Locale } from "../i18n/index.js";
 
 interface ResponseTextProps {
   content: string;
   loading?: boolean;
+  locale?: Locale;
 }
 
 const TRUNCATE_HEIGHT = 150;
 
-export function ResponseText({ content, loading }: ResponseTextProps) {
+export function ResponseText({ content, loading, locale }: ResponseTextProps) {
   const [expanded, setExpanded] = useState(false);
 
   if (loading && !content) {
@@ -88,7 +90,7 @@ export function ResponseText({ content, loading }: ResponseTextProps) {
             textAlign: "center",
           }}
         >
-          {expanded ? "[- collapse]" : "[+ expand]"}
+          {expanded ? `[- ${t("response.collapse", locale)}]` : `[+ ${t("response.expand", locale)}]`}
         </button>
       )}
     </div>
