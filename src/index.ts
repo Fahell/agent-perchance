@@ -219,7 +219,10 @@ function startAgent() {
     currentApiKey: getApiKey(),
     panelMode: loadPanelMode(),
     locale: loadLocale(),
-    userName: (oc.thread.userCharacter as any)?.name || "",
+    userName: oc.thread.userCharacter?.name
+      || oc.character?.userCharacter?.name
+      || oc.userCharacter?.name
+      || "",
     onSettingsSave: async (key: string) => {
       const valid = await validateApiKey(key);
       if (valid) {

@@ -70,6 +70,7 @@ export interface OcCharacter {
   shortcutButtons: OcShortcutButton[];
   streamingResponse: boolean;
   customData: Record<string, unknown> & { PUBLIC?: unknown };
+  userCharacter?: OcThreadCharacter;
 }
 
 // ─── Generate Text ──────────────────────────────────────────
@@ -106,6 +107,7 @@ export interface OcWindow {
 export interface Oc {
   thread: OcThread;
   character: OcCharacter;
+  userCharacter?: OcThreadCharacter;
   messageRenderingPipeline: Array<(data: { message: OcMessage; reader: "user" | "ai" }) => void>;
   window: OcWindow;
   generateText(options: GenerateTextOptions): Promise<GenerateTextResult>;

@@ -231,8 +231,11 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
         })()}
 
         {/* Thinking gap — covers the phase before any agent message exists */}
-        {agentStatus === "thinking" && (messages.length === 0 || messages[messages.length - 1].role === "user") && (
-          <ThinkingIndicator />
+        {agentStatus === "thinking" && messages.length > 0 && messages[messages.length - 1].role === "user" && (
+          <>
+            <div className="msg-turn-separator" />
+            <ThinkingIndicator />
+          </>
         )}
 
 
