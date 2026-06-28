@@ -26,6 +26,8 @@ export function MessageList({ children }: MessageListProps) {
         padding: "8px",
         fontSize: "13px",
         scrollBehavior: "smooth",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {children}
