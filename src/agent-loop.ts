@@ -124,7 +124,15 @@ export async function agentLoop(
 
     if (toolCalls.length === 0) {
       // No tool calls — this is the final answer
-      return cleanResponse(responseText);
+      const finalAnswer = cleanResponse(responseText);
+      if (finalAnswer.length > 0) return finalAnswer;
+
+      // Empty response — retry with explicit instruction (once)
+      if (iteration < MAX_ITERATIONS) {
+        onStatus?.("Retrying — empty response...");
+        instruction += "\n\nYour previous response was empty. Write a clear, concise answer to the user's question using the information above. Do NOT output tool_call XML — just write your answer directly.";
+        continue;
+      }
     }
 
     // Execute each tool call (usually just one)
@@ -145,7 +153,7 @@ export async function agentLoop(
         if (call.name === "web_search") {
           nextStep = "Analyze these search results. Pick the 1-2 most relevant URLs and use scrape_url to read their full content before answering.";
         } else if (call.name === "scrape_url") {
-          nextStep = "You now have the page content. Give your FINAL answer based on this real data.";
+          nextStep = "Write a clear, direct answer to the user's original question using the page content above. Keep it concise — 2-4 sentences. If the content doesn't contain the answer, use the search results from earlier.";
         } else {
           nextStep = "Now respond to the user based on this information.";
         }

@@ -31,10 +31,10 @@ const tools: Record<string, Tool> = {
     description: "Fetch and extract the full text content from a specific URL as markdown. USE this after web_search to read the actual page content of the most relevant URLs. Returns real article/page text, not just summaries.",
     parameters: {
       url: "The full URL to scrape (must start with http:// or https://)",
-      maxChars: "Maximum characters to return (default 5000). Use higher values for detailed articles.",
+      maxChars: "Maximum characters to return (default 3000). Use higher values for detailed articles.",
     },
     execute: async (args) => {
-      const maxChars = typeof args.maxChars === "number" ? args.maxChars : 5000;
+      const maxChars = typeof args.maxChars === "number" ? args.maxChars : 3000;
       const result = await scrapeUrl(args.url, maxChars);
       return `# ${result.title}\n\n${result.content}`;
     },

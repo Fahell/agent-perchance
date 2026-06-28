@@ -98,7 +98,7 @@ export async function webSearch(query: string, limit = 5): Promise<SearchRespons
 }
 
 // ─── Scrape URL ─────────────────────────────────────────────
-export async function scrapeUrl(url: string, maxChars = 5000): Promise<ScrapeResponse> {
+export async function scrapeUrl(url: string, maxChars = 3000): Promise<ScrapeResponse> {
   const res = await fetch("https://r.jina.ai/", {
     method: "POST",
     headers: jinaHeaders({ Accept: "text/markdown" }),
