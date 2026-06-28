@@ -1,5 +1,5 @@
 import { h } from "preact";
-import { useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 import { colors, fonts } from "./theme.js";
 import type { ToolCallEntry } from "./types.js";
 
@@ -12,9 +12,21 @@ const TOOL_LABELS: Record<string, string> = {
   scrape_url: "scrape_url",
 };
 
+const BRAILLE = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+
+function Spinner() {
+  const [frame, setFrame] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setFrame((f) => (f + 1) % BRAILLE.length), 80);
+    return () => clearInterval(id);
+  }, []);
+  return <span>{BRAILLE[frame]}</span>;
+}
+
 export function ToolCallCard({ toolCall }: ToolCallCardProps) {
   const [expanded, setExpanded] = useState(false);
   const label = TOOL_LABELS[toolCall.name] ?? toolCall.name;
+  const isRunning = toolCall.status === "running";
 
   const borderColor =
     toolCall.status === "success" ? colors.statusDone :
@@ -23,13 +35,53 @@ export function ToolCallCard({ toolCall }: ToolCallCardProps) {
 
   const badgeText =
     toolCall.status === "success" ? "[ok]" :
-    toolCall.status === "error" ? "[!!]" :
-    "[...]";
+    toolCall.status === "error" ? "[!!]" : "";
 
   const query = toolCall.args.query ?? toolCall.args.url ?? "";
   const queryPreview = typeof query === "string"
     ? (query.length > 60 ? query.slice(0, 60) + "..." : query)
     : String(query);
+
+  const headerContent = (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        width: "100%",
+        padding: "4px 10px",
+        textAlign: "left",
+        fontSize: "11px",
+        fontFamily: fonts.mono,
+      }}
+    >
+      <span style={{ color: colors.textSecondary, fontWeight: "600" }}>{label}</span>
+      <span style={{
+        marginLeft: "auto",
+        fontSize: "10px",
+        color: colors.textMuted,
+        maxWidth: "200px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        fontFamily: fonts.mono,
+      }}>
+        {isRunning
+          ? <span className="skeleton-line" style={{ display: "inline-block", width: "80px", height: "10px", margin: 0, verticalAlign: "middle" }} />
+          : queryPreview}
+      </span>
+      <span style={{
+        fontSize: "12px",
+        color: borderColor,
+        fontWeight: "bold",
+        fontFamily: fonts.mono,
+        width: "14px",
+        textAlign: "center",
+      }}>
+        {isRunning ? <Spinner /> : badgeText}
+      </span>
+    </div>
+  );
 
   return (
     <div style={{
@@ -39,52 +91,30 @@ export function ToolCallCard({ toolCall }: ToolCallCardProps) {
       overflow: "hidden",
       animation: "agent-slide-in 0.2s ease-out",
     }}>
-      {/* Header — always visible */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          width: "100%",
-          padding: "4px 10px",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          textAlign: "left",
-          fontSize: "11px",
-          fontFamily: fonts.mono,
-        }}
-      >
-        <span style={{ color: colors.textSecondary, fontWeight: "600" }}>{label}</span>
-        <span style={{
-          marginLeft: "auto",
-          fontSize: "10px",
-          color: colors.textMuted,
-          maxWidth: "200px",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          fontFamily: fonts.mono,
-        }}>
-          {queryPreview}
-        </span>
-        <span
-          className={toolCall.status === "running" ? "shimmer-text" : ""}
+      {/* Header — button when complete, div when running */}
+      {isRunning ? headerContent : (
+        <button
+          onClick={() => setExpanded(!expanded)}
           style={{
-            fontSize: "10px",
-            color: toolCall.status === "running" ? undefined : borderColor,
-            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            width: "100%",
+            padding: "4px 10px",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            textAlign: "left",
+            fontSize: "11px",
             fontFamily: fonts.mono,
-            ...(toolCall.status === "running" ? {} : {}),
           }}
         >
-          {badgeText}
-        </span>
-      </button>
+          {headerContent}
+        </button>
+      )}
 
-      {/* Expanded content */}
-      {expanded && (
+      {/* Expanded content — only when complete */}
+      {!isRunning && expanded && (
         <div style={{
           padding: "6px 10px 8px",
           borderTop: `1px solid ${colors.border}`,

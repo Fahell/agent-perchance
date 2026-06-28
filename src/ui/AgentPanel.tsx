@@ -7,7 +7,6 @@ import { UserMessage } from "./UserMessage.js";
 import { AgentMessage } from "./AgentMessage.js";
 import { SettingsModal } from "./SettingsModal.js";
 import { ThinkingIndicator } from "./ThinkingIndicator.js";
-import { WebSearchIndicator } from "./WebSearchIndicator.js";
 import { ScrollFAB } from "./ScrollFAB.js";
 import { Footer } from "./Footer.js";
 import type { AgentStatus, PanelMode, PanelMessage, ToolCallEntry } from "./types.js";
@@ -223,10 +222,7 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
           <ThinkingIndicator />
         )}
 
-        {/* Web search indicator — browser mockup during web_search execution */}
-        {agentStatus === "searching" && (
-          <WebSearchIndicator />
-        )}
+
       </MessageList>
 
       {/* Scroll-to-bottom FAB */}

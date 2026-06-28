@@ -18,6 +18,7 @@ declare const __BUILD_TIME__: string;
 const oc: Oc = window.oc;
 let agentProcessing = false;
 let panel: AgentPanelRef | null = null;
+let currentToolCallId: string | null = null;
 const MAX_HISTORY_MESSAGES = 10;
 const _panelProcessed = new WeakSet<object>();
 
@@ -126,12 +127,26 @@ async function handleUserMessage(message: OcMessage): Promise<void> {
       }
     },
     (toolName, args, result) => {
-      const id = panel?.addToolCall(toolName, args);
-      if (id) {
-        panel?.updateToolCall(id, {
+      if (currentToolCallId) {
+        panel?.updateToolCall(currentToolCallId, {
+          args,
           result: result.slice(0, 5000),
           status: "success",
         });
+        currentToolCallId = null;
+      }
+    },
+    (toolName, args) => {
+      currentToolCallId = panel?.addToolCall(toolName, args) ?? null;
+    },
+    (toolName, args, error) => {
+      if (currentToolCallId) {
+        panel?.updateToolCall(currentToolCallId, {
+          args,
+          error,
+          status: "error",
+        });
+        currentToolCallId = null;
       }
     }
   );

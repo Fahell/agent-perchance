@@ -88,7 +88,9 @@ export async function agentLoop(
   userMessage: string,
   history: HistoryMessage[] = [],
   onStatus?: (status: string) => void,
-  onToolResult?: (toolName: string, args: Record<string, any>, result: string) => void
+  onToolResult?: (toolName: string, args: Record<string, any>, result: string) => void,
+  onToolStart?: (toolName: string, args: Record<string, any>) => void,
+  onToolError?: (toolName: string, args: Record<string, any>, error: string) => void
 ): Promise<string> {
   const toolPrompt = buildToolPrompt();
 
@@ -141,6 +143,7 @@ export async function agentLoop(
       if (!tool) continue;
 
       onStatus?.(`Using ${call.name}...`);
+      onToolStart?.(call.name, call.args);
 
       try {
         const result = await tool.execute(call.args);
@@ -164,6 +167,7 @@ export async function agentLoop(
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
         console.error(`[Agent] Tool ${call.name} failed:`, errorMsg);
+        onToolError?.(call.name, call.args, errorMsg);
         instruction += `\n\n[Tool Error - ${call.name}]: ${errorMsg}\n\nThe tool failed. Respond to the user explaining the issue.`;
       }
     }
