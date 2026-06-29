@@ -210,7 +210,6 @@ export function ThinkingIndicator() {
       ref={containerRef}
       style={{
         padding: "6px 10px",
-        height: "62px",
         overflow: "hidden",
       }}
     />
