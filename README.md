@@ -136,7 +136,7 @@ User sends message
 | `oc.thread.messages.push()` | Add messages to chat | Triggers MessageAdded |
 | `oc.generateText({instruction})` | Call LLM programmatically | Standalone, no auto-context |
 | `oc.window.show() / .hide()` | Control iframe window | UI lives in iframe |
-| `oc.thread.customData` | Persistent key-value storage | ~1-2KB limit, persists across sessions |
+| `oc.thread.customData` | Persistent key-value storage | idb limit, persists across sessions |
 | `oc.thread.userCharacter?.name` | Get username | 3-level fallback chain |
 
 ## Tools
