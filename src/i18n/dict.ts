@@ -95,6 +95,9 @@ const en: Translations = {
   "context.totalHistory": "total messages",
   "context.searchPlaceholder": "search history...",
   "context.search": "search",
+
+  // FAQ
+  "faq.title": "faq",
 };
 
 const ptBR: Translations = {
@@ -173,6 +176,9 @@ const ptBR: Translations = {
   "context.totalHistory": "total de mensagens",
   "context.searchPlaceholder": "buscar histórico...",
   "context.search": "buscar",
+
+  // FAQ
+  "faq.title": "perguntas frequentes",
 };
 
 const es: Translations = {
@@ -236,7 +242,11 @@ const es: Translations = {
   "context.noChunks": "sin chunks aun",
   "context.totalHistory": "total de mensajes",
   "context.searchPlaceholder": "buscar historial...",
-  "context.search": "buscar",};
+  "context.search": "buscar",
+
+  // FAQ
+  "faq.title": "preguntas frecuentes",
+};
 
 const ja: Translations = {
   "settings.title": "設定",
@@ -301,6 +311,9 @@ const ja: Translations = {
   "context.totalHistory": "総メッセージ数",
   "context.searchPlaceholder": "履歴を検索...",
   "context.search": "検索",
+
+  // FAQ
+  "faq.title": "よくある質問",
 };
 
 const zh: Translations = {
@@ -366,6 +379,9 @@ const zh: Translations = {
   "context.totalHistory": "总消息数",
   "context.searchPlaceholder": "搜索历史...",
   "context.search": "搜索",
+
+  // FAQ
+  "faq.title": "常见问题",
 };
 
 export const dict: Record<Locale, Translations> = {

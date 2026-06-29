@@ -11,6 +11,7 @@ import { ThinkingIndicator } from "./ThinkingIndicator.js";
 import { ScrollFAB } from "./ScrollFAB.js";
 import { Footer } from "./Footer.js";
 import { ContextViewer } from "./ContextViewer.js";
+import { FaqModal } from "./FaqModal.js";
 import type { AgentStatus, PanelMode, PanelMessage, ToolCallEntry } from "./types.js";
 
 let msgCounter = 0;
@@ -46,6 +47,7 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
   const [agentStatus, setAgentStatus] = useState<AgentStatus>("idle");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
+  const [faqOpen, setFaqOpen] = useState(false);
   const [apiKey, setApiKey] = useState(currentApiKey);
   const [panelMode, setPanelMode] = useState<PanelMode>(initialPanelMode);
   const [inputEnabled, setInputEnabled] = useState(initialInputEnabled);
@@ -161,7 +163,7 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
       boxSizing: "border-box",
       overflow: "hidden",
     }}>
-      <Header version={version} commit={commit} />
+      <Header version={version} commit={commit} onFaq={() => setFaqOpen(true)} />
 
       <div style={{ position: "relative", flex: "1", minHeight: "0", display: "flex", flexDirection: "column" }}>
       <MessageList outerRef={scrollRef}>
@@ -266,6 +268,12 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
         locale={locale}
         onClose={() => setContextOpen(false)}
         onRefresh={() => setContextOpen(false)}
+      />
+
+      <FaqModal
+        isOpen={faqOpen}
+        locale={locale}
+        onClose={() => setFaqOpen(false)}
       />
 
       <SettingsModal
