@@ -10,10 +10,10 @@
 
 import type { Oc } from "./types.js";
 import { getTool, getToolDescriptions, hasTool } from "./tools/index.js";
+import type { ContextResult } from "./context-manager.js";
 
 // ─── Constants ──────────────────────────────────────────────
 const MAX_ITERATIONS = 8;
-const MAX_HISTORY_MESSAGES = 10;
 const TOOL_CALL_REGEX = /<tool_call\s+name="(\w+)">\s*(\{.*?\})\s*<\/tool_call>/gs;
 
 // ─── System Prompt for Tools ────────────────────────────────
@@ -50,6 +50,12 @@ You may output ONE tool_call per response, followed by a brief note.`;
 export interface HistoryMessage {
   role: "user" | "assistant";
   content: string;
+}
+
+export interface AgentContext {
+  summary?: string | null;
+  recentMessages: HistoryMessage[];
+  memories?: string;
 }
 
 // ─── Parse Tool Calls ───────────────────────────────────────
@@ -89,7 +95,7 @@ function cleanResponse(text: string): string {
 export async function agentLoop(
   oc: Oc,
   userMessage: string,
-  history: HistoryMessage[] = [],
+  context: AgentContext,
   onStatus?: (status: string) => void,
   onToolResult?: (toolName: string, args: Record<string, any>, result: string) => void,
   onToolStart?: (toolName: string, args: Record<string, any>) => void,
@@ -97,16 +103,27 @@ export async function agentLoop(
 ): Promise<string> {
   const toolPrompt = buildToolPrompt();
 
-  // Build the instruction for the LLM with conversation history
+  // Build the instruction for the LLM with structured context
   let instruction = toolPrompt + "\n\n";
 
-  if (history.length > 0) {
-    instruction += "Recent conversation:\n";
-    for (const msg of history) {
+  // Add summary if available
+  if (context.summary) {
+    instruction += `[Earlier conversation summary]:\n${context.summary}\n\n`;
+  }
+
+  // Add recent messages
+  if (context.recentMessages.length > 0) {
+    instruction += "[Recent messages]:\n";
+    for (const msg of context.recentMessages) {
       const role = msg.role === "user" ? "User" : "Assistant";
       instruction += `${role}: ${msg.content}\n`;
     }
     instruction += "\n";
+  }
+
+  // Add memories if available
+  if (context.memories) {
+    instruction += `[Key facts from conversation]:\n${context.memories}\n\n`;
   }
 
   instruction += `User message: ${userMessage}`;

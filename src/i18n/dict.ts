@@ -78,6 +78,16 @@ const en: Translations = {
 
   // Footer
   "footer.waiting": "waiting...",
+
+  // Context Viewer
+  "context.title": "context",
+  "context.tokens": "tokens",
+  "context.summary": "summary",
+  "context.noSummary": "no summary yet — will be generated when conversation exceeds token budget",
+  "context.messages": "messages",
+  "context.noMessages": "no messages yet",
+  "context.memories": "memories",
+  "context.noMemories": "no memories extracted yet",
 };
 
 const ptBR: Translations = {
@@ -139,6 +149,16 @@ const ptBR: Translations = {
 
   // Footer
   "footer.waiting": "aguardando...",
+
+  // Context Viewer
+  "context.title": "contexto",
+  "context.tokens": "tokens",
+  "context.summary": "resumo",
+  "context.noSummary": "sem resumo — será gerado quando a conversa exceder o orçamento de tokens",
+  "context.messages": "mensagens",
+  "context.noMessages": "nenhuma mensagem ainda",
+  "context.memories": "memórias",
+  "context.noMemories": "nenhuma memória extraída ainda",
 };
 
 const es: Translations = {
@@ -187,6 +207,16 @@ const es: Translations = {
   "setup.save": "guardar + iniciar",
   "setup.note": "tu clave se almacena localmente y nunca se comparte.",
   "footer.waiting": "esperando...",
+
+  // Context Viewer
+  "context.title": "contexto",
+  "context.tokens": "tokens",
+  "context.summary": "resumen",
+  "context.noSummary": "sin resumen — se generará cuando la conversación exceda el presupuesto",
+  "context.messages": "mensajes",
+  "context.noMessages": "sin mensajes aún",
+  "context.memories": "memorias",
+  "context.noMemories": "sin memorias extraídas aún",
 };
 
 const ja: Translations = {
@@ -235,6 +265,16 @@ const ja: Translations = {
   "setup.save": "保存して開始",
   "setup.note": "キーはローカルに保存され、共有されることはありません。",
   "footer.waiting": "待機中...",
+
+  // Context Viewer
+  "context.title": "コンテキスト",
+  "context.tokens": "トークン",
+  "context.summary": "要約",
+  "context.noSummary": "要約なし — トークン予算超過時に生成されます",
+  "context.messages": "メッセージ",
+  "context.noMessages": "メッセージなし",
+  "context.memories": "メモリ",
+  "context.noMemories": "メモリなし",
 };
 
 const zh: Translations = {
@@ -283,6 +323,16 @@ const zh: Translations = {
   "setup.save": "保存并开始",
   "setup.note": "密钥仅本地存储，绝不共享。",
   "footer.waiting": "等待中...",
+
+  // Context Viewer
+  "context.title": "上下文",
+  "context.tokens": "令牌",
+  "context.summary": "摘要",
+  "context.noSummary": "无摘要 — 超出令牌预算时生成",
+  "context.messages": "消息",
+  "context.noMessages": "暂无消息",
+  "context.memories": "记忆",
+  "context.noMemories": "暂无提取的记忆",
 };
 
 export const dict: Record<Locale, Translations> = {

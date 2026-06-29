@@ -5,13 +5,14 @@ import { t, type Locale } from "../i18n/index.js";
 
 interface FooterProps {
   onSettings: () => void;
+  onContext: () => void;
   inputEnabled: boolean;
   onSend: (text: string) => void;
   disabled: boolean;
   locale?: Locale;
 }
 
-export function Footer({ onSettings, inputEnabled, onSend, disabled, locale }: FooterProps) {
+export function Footer({ onSettings, onContext, inputEnabled, onSend, disabled, locale }: FooterProps) {
   const placeholder = t("footer.waiting", locale);
   const [text, setText] = useState("");
 
@@ -95,6 +96,21 @@ export function Footer({ onSettings, inputEnabled, onSend, disabled, locale }: F
           }}
         >
           [=]
+        </button>
+        <span style={{ color: colors.border, margin: "0 4px" }}>/</span>
+        <button
+          onClick={onContext}
+          style={{
+            background: "none",
+            border: "none",
+            color: colors.textMuted,
+            fontSize: "11px",
+            padding: "0",
+            cursor: "pointer",
+            fontFamily: fonts.mono,
+          }}
+        >
+          [ctx]
         </button>
       </div>
     </div>

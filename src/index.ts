@@ -9,6 +9,8 @@ import { setApiKey, getApiKey, validateApiKey } from "./tools/web-search.js";
 import { storageGet, storageSet, initStorage } from "./storage.js";
 import { renderPanel, renderSetup, type AgentPanelRef } from "./ui/index.js";
 import { getLocale, setLocale as setI18nLocale, type Locale } from "./i18n/index.js";
+import { buildContext } from "./context-manager.js";
+import { extractMemories, formatMemories } from "./memory.js";
 
 // ─── Build Constants (injected by esbuild) ──────────────────
 declare const __VERSION__: string;
@@ -20,7 +22,6 @@ const oc: Oc = window.oc;
 let agentProcessing = false;
 let panel: AgentPanelRef | null = null;
 let currentToolCallId: string | null = null;
-const MAX_HISTORY_MESSAGES = 10;
 const _panelProcessed = new WeakSet<object>();
 
 // ─── Version Banner ─────────────────────────────────────────
@@ -105,17 +106,21 @@ async function handleUserMessage(message: OcMessage): Promise<void> {
   // Show user message in Preact panel
   panel?.addUserMessage(message.content);
 
-  // Extract conversation history
-  const history = oc.thread.messages
-    .filter((m) => (m.author === "user" || m.author === "ai") && m !== message)
-    .slice(-MAX_HISTORY_MESSAGES)
-    .map((m) => ({ role: m.author === "user" ? "user" as const : "assistant" as const, content: m.content }));
+  // Build context with token-aware summarization
+  const ctx = await buildContext(oc, message.content);
+  console.log("🧠 [Agent] Context: ~" + ctx.totalTokens + " tokens, " + ctx.recentMessages.length + " messages" + (ctx.summarizedCount > 0 ? ", summarized " + ctx.summarizedCount + " older messages" : ""));
 
-  // Run agent loop with panel callbacks
+  // Run agent loop with structured context
+  const agentContext = {
+    summary: ctx.summary,
+    recentMessages: ctx.recentMessages,
+    memories: formatMemories(oc),
+  };
+
   const response = await agentLoop(
     oc,
     message.content,
-    history,
+    agentContext,
     (status) => {
       console.log("🤖 [Agent]", status);
       const s = status.toLowerCase();
@@ -166,6 +171,9 @@ async function handleUserMessage(message: OcMessage): Promise<void> {
     author: "ai",
     content: response,
   });
+
+  // Extract memories in background (non-blocking)
+  extractMemories(oc, message.content, response).catch(() => {});
 }
 
 // ─── Process User Message (single source of truth) ───────────

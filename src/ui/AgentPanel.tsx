@@ -10,6 +10,7 @@ import { SettingsModal } from "./SettingsModal.js";
 import { ThinkingIndicator } from "./ThinkingIndicator.js";
 import { ScrollFAB } from "./ScrollFAB.js";
 import { Footer } from "./Footer.js";
+import { ContextViewer } from "./ContextViewer.js";
 import type { AgentStatus, PanelMode, PanelMessage, ToolCallEntry } from "./types.js";
 
 let msgCounter = 0;
@@ -44,6 +45,7 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
   const [messages, setMessages] = useState<PanelMessage[]>([]);
   const [agentStatus, setAgentStatus] = useState<AgentStatus>("idle");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [contextOpen, setContextOpen] = useState(false);
   const [apiKey, setApiKey] = useState(currentApiKey);
   const [panelMode, setPanelMode] = useState<PanelMode>(initialPanelMode);
   const [inputEnabled, setInputEnabled] = useState(initialInputEnabled);
@@ -251,10 +253,19 @@ export function AgentPanel({ version, commit, currentApiKey, panelMode: initialP
       {/* Footer */}
       <Footer
         onSettings={() => setSettingsOpen(true)}
+        onContext={() => setContextOpen(true)}
         inputEnabled={inputEnabled}
         onSend={onSendMessage}
         disabled={agentStatus !== "idle"}
         locale={locale}
+      />
+
+      <ContextViewer
+        isOpen={contextOpen}
+        oc={(window as any).oc}
+        locale={locale}
+        onClose={() => setContextOpen(false)}
+        onRefresh={() => setContextOpen(false)}
       />
 
       <SettingsModal
